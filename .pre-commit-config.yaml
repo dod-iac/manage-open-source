@@ -1,0 +1,54 @@
+repos:
+  - repo: git://github.com/golangci/golangci-lint
+    rev: v1.37.0
+    hooks:
+      - id: golangci-lint
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: detect-private-key
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, cw2, --pattern, '\d\.\d\.\d']
+      - id: trailing-whitespace
+        exclude: poc
+
+  - repo: git://github.com/igorshubovych/markdownlint-cli
+    rev: v0.26.0
+    hooks:
+      - id: markdownlint
+
+  - repo: git://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.45.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_docs
+      - id: terraform_tflint
+      - id: terraform_tfsec
+
+  - repo: local
+    hooks:
+      - id: circleci-validate
+        name: circleci validate
+        entry: circleci config validate
+        language: system
+        files: .circleci/config.yml
+
+  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+    rev: v0.1.0
+    hooks:
+      - id: dockerfilelint
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.2.1
+    hooks:
+      - id: prettier
+        files: ^frontend/
+        types_or: [html, css, javascript, jsx, ts, tsx]
+
+  - repo: git://github.com/detailyang/pre-commit-shell
+    rev: 1.0.5
+    hooks:
+      - id: shell-lint
