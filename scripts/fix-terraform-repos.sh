@@ -40,18 +40,23 @@ diffcheck() {
     if [ ! -d "${basedir}/${repo}" ]; then
         return
     fi
-    cp "${template_file}" "${remote_file}"
+    cp -v "${template_file}" "${remote_file}"
 }
 
 check() {
     repo=$1
 
     basedir=$(realpath "${DIR}"/../../)
+    pushd "${basedir}/${repo}" >> /dev/null || exit 1
+
+    echo
+    echo "===================="
+    echo "Editing files"
+    pwd
 
     echo
     echo "===================="
     echo "Stash changes and pull latest code"
-    pwd
     git stash
     git checkout main || git checkout master
     git pull
@@ -63,15 +68,16 @@ check() {
     mkdir -p .circleci/
     mkdir -p bin/
     mkdir -p examples/simple/
-    mkdir -p pkg/
+    mkdir -p pkg/tools/
     mkdir -p scripts/
     mkdir -p test/
 
     echo
     echo "===================="
-    echo "Update to latest"
+    echo "Update to latest files"
     # Files we want to be exactly the same as in the template repo
     diffcheck "${basedir}" "${repo}" .circleci/config.yml
+    diffcheck "${basedir}" "${repo}" pkg/tools/tools.go
     diffcheck "${basedir}" "${repo}" scripts/format-terraform
     diffcheck "${basedir}" "${repo}" scripts/lint-go
     diffcheck "${basedir}" "${repo}" scripts/terratest
@@ -84,7 +90,25 @@ check() {
     diffcheck "${basedir}" "${repo}" LICENSE
     diffcheck "${basedir}" "${repo}" INTENT.md
     diffcheck "${basedir}" "${repo}" Makefile
-    pushd "${basedir}/${repo}" >> /dev/null || exit 1
+
+    # Example Module
+    if [ ! -f "${basedir}/examples/simple/main.tf" ]; then
+      diffcheck "${basedir}" "${repo}" examples/simple/main.tf
+      diffcheck "${basedir}" "${repo}" examples/simple/outputs.tf
+      diffcheck "${basedir}" "${repo}" examples/simple/README.md
+      diffcheck "${basedir}" "${repo}" examples/simple/variables.tf
+    fi
+
+    # Example Test
+    if [ ! -f "${basedir}/test/terraform_aws_simple_test.go" ]; then
+      diffcheck "${basedir}" "${repo}" test/terraform_aws_simple_test.go
+    fi
+
+    # Go.mod
+    if [ ! -f "${basedir}/go.mod" ]; then
+      go mod init "github.com/dod-iac/${repo}"
+      go mod tidy
+    fi
 
     echo
     echo "===================="
@@ -92,6 +116,7 @@ check() {
     rm -f scripts/format-files
     rm -f .terraform-version
 
+    echo
     echo "===================="
     echo "Repo status"
     echo
