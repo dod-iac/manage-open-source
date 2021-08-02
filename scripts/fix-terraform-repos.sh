@@ -84,6 +84,7 @@ check() {
     diffcheck "${basedir}" "${repo}" scripts/update-docs
     diffcheck "${basedir}" "${repo}" .editorconfig
     diffcheck "${basedir}" "${repo}" .envrc
+    diffcheck "${basedir}" "${repo}" .envrc.local.template
     diffcheck "${basedir}" "${repo}" .gitignore
     diffcheck "${basedir}" "${repo}" .markdownlintrc
     diffcheck "${basedir}" "${repo}" .pre-commit-config.yaml
