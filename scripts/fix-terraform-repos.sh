@@ -8,27 +8,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
 TEMPLATE_REPO="terraform-module-template"
-DATE=$(date +"%s")
-
-function git_current_branch() {
-  git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\///'
-}
-
-function git_current_origin() {
-  git config --get remote.origin.url | sed -e 's/^.*\://' | sed -e 's/\.git.*//'
-}
-
-function git_current_domain() {
-  git config --get remote.origin.url | sed -e 's/^.*\@//' | sed -e 's/\:.*//'
-}
-
-function gpthis() {
-    git push origin "HEAD:$(git_current_branch)"
-}
-
-function gpr() {
-    open "https://$(git_current_domain)/$(git_current_origin)/pull/new/$(git_current_branch)"
-}
 
 diffcheck() {
     basedir=$1
